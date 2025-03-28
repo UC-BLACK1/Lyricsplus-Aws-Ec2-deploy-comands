@@ -1,1 +1,105 @@
 
+sudo apt update
+
+sudo apt install python3-pip python3-dev nginx
+
+sudo pip3 install virtualenv
+sudo apt install python3-virtualenv
+
+git clone https://github.com/UC-BLACK1/LiteUpNigeriaBackend.git
+
+cd LiteUpNigeriaBackend
+
+virtualenv env
+
+source env/bin/activate
+
+sudo apt-get install libpq-dev
+
+pip install -r requirements.txt
+
+pip install django gunicorn
+
+python manage.py makemigrations
+
+python manage.py migrate
+
+python manage.py collectstatic
+
+add this line "whitenoise.runserver_nostatic", into your install_apps of setting file.
+add 'whitenoise.middleware.WhiteNoiseMiddleware', into MiddleWare of your setting file.
+
+pip install whitenoise
+
+deactivate
+
+cd ..
+
+
+sudo vim /etc/systemd/system/gunicorn.socket
+
+[Unit]
+Description=gunicorn socket
+[Socket]
+ListenStream=/run/gunicorn.sock
+[Install]
+WantedBy=sockets.target
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/LiteUpNigeriaBackend
+ExecStart=/home/ubuntu/LiteUpNigeriaBackend/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock LiteUp.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+cd /etc/nginx/sites-enabled/
+
+sudo rm -f default
+
+sudo vim /etc/nginx/sites-available/LiteUp
+
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /staticfiles/ {
+        alias /home/ubuntu/LiteUpNigeriaBackend;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/LiteUp /etc/nginx/sites-enabled/
+
+sudo gpasswd -a www-data ubuntu
+
+sudo systemctl restart nginx
+
+sudo service gunicorn restart
+sudo service nginx restart
+
+chmod 400 "liteupper.pem"
+ssh -i "liteupper.pem" ubuntu@ec2-54-165-143-30.compute-1.amazonaws.com
+cd LiteUpNigeriaBackend
+source env/bin/activate
+git pull
+deactivate
+cd ..
+sudo service gunicorn restart
+sudo service nginx restart
