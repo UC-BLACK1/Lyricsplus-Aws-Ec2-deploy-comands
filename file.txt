@@ -6,9 +6,9 @@ sudo apt install python3-pip python3-dev nginx
 sudo pip3 install virtualenv
 sudo apt install python3-virtualenv
 
-git clone https://github.com/UC-BLACK1/LiteUpNigeriaBackend.git
+git clone https://github.com/UC-BLACK1/Lyricsplus-backend.git
 
-cd LiteUpNigeriaBackend
+cd Lyricsplus-backend
 
 virtualenv env
 
@@ -55,8 +55,8 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/LiteUpNigeriaBackend
-ExecStart=/home/ubuntu/LiteUpNigeriaBackend/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock LiteUp.wsgi:application
+WorkingDirectory=/home/ubuntu/Lyricsplus-backend
+ExecStart=/home/ubuntu/Lyricsplus-backend/env/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock lyrics.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
@@ -76,7 +76,7 @@ server {
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /staticfiles/ {
-        alias /home/ubuntu/LiteUpNigeriaBackend;
+        alias /home/ubuntu/Lyricsplus-backend;
     }
 
     location / {
@@ -94,9 +94,9 @@ sudo systemctl restart nginx
 sudo service gunicorn restart
 sudo service nginx restart
 
-chmod 400 "liteupper.pem"
-ssh -i "liteupper.pem" ubuntu@ec2-54-165-143-30.compute-1.amazonaws.com
-cd LiteUpNigeriaBackend
+chmod 400 "lyricsplus.pem"
+ssh -i "lyricsplus.pem" ubuntu@ec2-13-218-122-177.compute-1.amazonaws.com
+cd Lyricsplus-backend
 source env/bin/activate
 git pull
 deactivate
