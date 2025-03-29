@@ -69,7 +69,7 @@ cd /etc/nginx/sites-enabled/
 
 sudo rm -f default
 
-sudo vim /etc/nginx/sites-available/LiteUp
+sudo vim /etc/nginx/sites-available/lyrics
 
 server {
     listen 80 default_server;
@@ -86,7 +86,7 @@ server {
     }
 }
 
-sudo ln -s /etc/nginx/sites-available/LiteUp /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/lyrics /etc/nginx/sites-enabled/
 
 sudo gpasswd -a www-data ubuntu
 
